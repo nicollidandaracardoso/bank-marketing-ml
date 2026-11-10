@@ -8,9 +8,9 @@ Usamos `bank-additional-full.csv`, a versão completa do dataset Bank Marketing,
 
 ## Progresso
 
-**Etapas concluídas: EDA e pré-processamento.** O notebook 01 examina a estrutura do CSV, tipos, nulos, valores `unknown`, duplicatas, alvo, `pdays` e distribuições relevantes. O notebook 02 usa as funções compartilhadas de `src/preprocessing.py` para separar as classes, retirar `duration`, transformar o sentinela de `pdays`, dividir os dados e ajustar o pré-processamento apenas no conjunto de treino. As figuras da EDA ficam em `results/figures/`.
+**Etapas concluídas: EDA, pré-processamento e treinamento inicial.** Os notebooks 01 e 02 exploram e preparam os dados com as funções compartilhadas em `src/preprocessing.py`. O notebook 03 ajusta `DummyClassifier`, `LogisticRegression` e `RandomForestClassifier` somente no conjunto de treino e salva os pipelines em `results/models/`.
 
-Ainda não foram treinados modelos e, portanto, este README não apresenta métricas de desempenho.
+Os modelos ainda não foram avaliados no teste; por isso este README não apresenta métricas de desempenho nem escolhe um vencedor.
 
 ## Decisões importantes
 
@@ -35,13 +35,14 @@ python -m pip install -r requirements.txt
 jupyter notebook
 ```
 
-Abra os notebooks em ordem (`01` e `02`) no Jupyter. O módulo compartilhado é importado de `src/preprocessing.py`, e os notebooks esperam encontrar o CSV em `data/bank-additional-full.csv`.
+Abra os notebooks em ordem (`01`, `02` e `03`) no Jupyter. O módulo compartilhado é importado de `src/preprocessing.py`, e os notebooks esperam encontrar o CSV em `data/bank-additional-full.csv`.
 
 Para executar e salvar as saídas no notebook:
 
 ```powershell
 jupyter nbconvert --to notebook --execute --inplace notebooks/01_exploratory_data_analysis.ipynb
 jupyter nbconvert --to notebook --execute --inplace notebooks/02_data_preprocessing.ipynb
+jupyter nbconvert --to notebook --execute --inplace notebooks/03_model_training.ipynb
 ```
 
 ## Referência
