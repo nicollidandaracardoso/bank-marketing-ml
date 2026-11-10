@@ -8,7 +8,7 @@ Usamos `bank-additional-full.csv`, a versão completa do dataset Bank Marketing,
 
 ## Progresso
 
-**Etapa atual: exploração dos dados (EDA).** O notebook examina a estrutura do CSV, tipos, nulos, valores `unknown`, duplicatas, classes do alvo, variáveis numéricas e distribuições relevantes. As figuras geradas ficam em `results/figures/`.
+**Etapas concluídas: EDA e pré-processamento.** O notebook 01 examina a estrutura do CSV, tipos, nulos, valores `unknown`, duplicatas, alvo, `pdays` e distribuições relevantes. O notebook 02 usa as funções compartilhadas de `src/preprocessing.py` para separar as classes, retirar `duration`, transformar o sentinela de `pdays`, dividir os dados e ajustar o pré-processamento apenas no conjunto de treino. As figuras da EDA ficam em `results/figures/`.
 
 Ainda não foram treinados modelos e, portanto, este README não apresenta métricas de desempenho.
 
@@ -16,14 +16,15 @@ Ainda não foram treinados modelos e, portanto, este README não apresenta métr
 
 - **`duration`:** será removida dos preditores do modelo principal. A duração da ligação só é conhecida depois do contato; usá-la para decidir antes de ligar seria data leakage (vazamento de informação).
 - **`unknown`:** será mantido como categoria própria, pois é um valor textual explícito no dataset e não um `NaN`.
-- **`pdays`:** o valor `999` indica ausência de contato em campanhas anteriores nesta versão. Não é um número literal de dias. A EDA compara a média bruta com os dias entre clientes previamente contatados; o tratamento final será implementado na etapa de pré-processamento.
+- **`pdays`:** o valor `999` indica ausência de contato em campanhas anteriores nesta versão. Não é um número literal de dias. O pré-processamento cria `was_previously_contacted`, substitui `999` por ausente e imputa a mediana aprendida no conjunto de treino.
+- **Divisão e pré-processamento:** os dados são divididos em 80% treino e 20% teste, com estratificação e `random_state=42`. Imputação, escala e categorias do One-Hot Encoder são ajustadas no treino e depois aplicadas ao teste.
 - **Causalidade:** associações nos gráficos não demonstram que uma variável cause a adesão. O projeto é experimental e pode refletir limitações ou vieses dos dados históricos.
 
 ## Tecnologias
 
 Python, Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn, Jupyter Notebook e joblib. As dependências estão listadas em [`requirements.txt`](requirements.txt).
 
-## Como executar a EDA
+## Como executar os notebooks
 
 No PowerShell, a partir da pasta raiz do projeto:
 
@@ -34,12 +35,13 @@ python -m pip install -r requirements.txt
 jupyter notebook
 ```
 
-Abra `notebooks/01_exploratory_data_analysis.ipynb` no Jupyter. O notebook espera encontrar o CSV em `data/bank-additional-full.csv`.
+Abra os notebooks em ordem (`01` e `02`) no Jupyter. O módulo compartilhado é importado de `src/preprocessing.py`, e os notebooks esperam encontrar o CSV em `data/bank-additional-full.csv`.
 
 Para executar e salvar as saídas no notebook:
 
 ```powershell
 jupyter nbconvert --to notebook --execute --inplace notebooks/01_exploratory_data_analysis.ipynb
+jupyter nbconvert --to notebook --execute --inplace notebooks/02_data_preprocessing.ipynb
 ```
 
 ## Referência
