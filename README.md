@@ -8,7 +8,7 @@ Usamos `bank-additional-full.csv`, a versão completa do dataset Bank Marketing,
 
 ## Progresso
 
-**Etapas concluídas: EDA, pré-processamento, treinamento e avaliação final.** Os notebooks 01 e 02 exploram e preparam os dados com as funções compartilhadas em `src/preprocessing.py`. O notebook 03 ajusta `DummyClassifier`, `LogisticRegression` e `RandomForestClassifier` somente no conjunto de treino. O notebook 04 compara os três no teste reservado, em uma avaliação final, e salva a tabela e os gráficos em `results/`.
+**Etapas concluídas: EDA, pré-processamento, treinamento, avaliação e interpretação.** Os notebooks 01 e 02 exploram e preparam os dados com as funções compartilhadas em `src/preprocessing.py`. O notebook 03 ajusta `DummyClassifier`, `LogisticRegression` e `RandomForestClassifier` somente no conjunto de treino. O notebook 04 compara os três no teste reservado. O notebook 05 interpreta coeficientes e importâncias dos modelos salvos.
 
 ### Resultados no teste
 
@@ -24,6 +24,12 @@ O Dummy alcança accuracy 0,8874 ao prever sempre `no`, mas não identifica nenh
 
 A tabela completa está em [`results/tables/model_comparison.csv`](results/tables/model_comparison.csv). Figuras reais desta execução: [matrizes de confusão](results/figures/model_confusion_matrices.png), [curva ROC](results/figures/model_roc_curves.png) e [curva Precision-Recall](results/figures/model_precision_recall_curves.png).
 
+### Interpretação dos modelos
+
+Na regressão logística, os maiores pesos em valor absoluto incluem `emp.var.rate` (-2,257 por desvio padrão), `month_mar` (+1,294) e `cons.price.idx` (+1,123). São pesos condicionais do modelo, não diferenças de taxa observada nem efeitos causais. Na Random Forest, as maiores importâncias agrupadas por variável foram `age` (0,141), `euribor3m` (0,124), `job` (0,099), `campaign` (0,080) e `education` (0,079). Importância de impureza indica como as variáveis foram usadas nas árvores; pode favorecer variáveis com muitos níveis.
+
+Tabelas da interpretação: [coeficientes da regressão logística](results/tables/logistic_regression_coefficients.csv) e [importância da Random Forest](results/tables/random_forest_feature_importance.csv). Figuras: [coeficientes](results/figures/logistic_regression_top_coefficients.png) e [importância agrupada](results/figures/random_forest_grouped_importance.png).
+
 ## Decisões importantes
 
 - **`duration`:** será removida dos preditores do modelo principal. A duração da ligação só é conhecida depois do contato; usá-la para decidir antes de ligar seria data leakage (vazamento de informação).
@@ -32,6 +38,8 @@ A tabela completa está em [`results/tables/model_comparison.csv`](results/table
 - **Divisão e pré-processamento:** os dados são divididos em 80% treino e 20% teste, com estratificação e `random_state=42`. Imputação, escala e categorias do One-Hot Encoder são ajustadas no treino e depois aplicadas ao teste.
 - **Causalidade:** associações nos gráficos não demonstram que uma variável cause a adesão. O projeto é experimental e pode refletir limitações ou vieses dos dados históricos.
 - **Generalização temporal:** a divisão treino/teste é aleatória e estratificada; ela não mede diretamente o desempenho em uma campanha futura de outro período.
+- **Momento da previsão:** `campaign` conta contatos na campanha atual e inclui o último contato. Como o projeto descreve uma previsão antes da ligação, é necessário confirmar se esse valor e os campos da ligação atual (`contact`, `month`, `day_of_week`) estariam disponíveis naquele instante. Os resultados apresentados usam esses campos como estão no dataset; uma versão estritamente pré-contato deve revisar essa disponibilidade e ser treinada e avaliada novamente.
+- **Interpretação:** coeficientes e importâncias descrevem relações usadas pelos modelos. Não demonstram causalidade nem justificam decisões individuais sobre clientes.
 
 ## Tecnologias
 
@@ -48,7 +56,7 @@ python -m pip install -r requirements.txt
 jupyter notebook
 ```
 
-Abra os notebooks em ordem (`01` a `04`) no Jupyter. O módulo compartilhado é importado de `src/preprocessing.py`, e os notebooks esperam encontrar o CSV em `data/bank-additional-full.csv`.
+Abra os notebooks em ordem (`01` a `05`) no Jupyter. O módulo compartilhado é importado de `src/preprocessing.py`; o notebook 05 lê os pipelines persistidos. Os notebooks esperam encontrar o CSV em `data/bank-additional-full.csv`.
 
 Para executar e salvar as saídas no notebook:
 
@@ -57,6 +65,7 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/01_exploratory_dat
 jupyter nbconvert --to notebook --execute --inplace notebooks/02_data_preprocessing.ipynb
 jupyter nbconvert --to notebook --execute --inplace notebooks/03_model_training.ipynb
 jupyter nbconvert --to notebook --execute --inplace notebooks/04_model_evaluation.ipynb
+jupyter nbconvert --to notebook --execute --inplace notebooks/05_model_interpretation.ipynb
 ```
 
 ## Referência
